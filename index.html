@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltDev - Sosial Media untuk Developer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 50px;
+            color: #cccccc;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .feature-card {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ff0000;
+        }
+
+        .feature-desc {
+            color: #cccccc;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4);
+            font-weight: bold;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 40px rgba(255, 0, 0, 0.6);
+        }
+
+        .cta-button:active {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+            }
+            .tagline {
+                font-size: 1.2rem;
+            }
+            .cta-button {
+                padding: 15px 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">VOLTDEV</div>
+        <div class="tagline">Sosial Media untuk Developer & Creator</div>
+
+        <div class="features">
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <div class="feature-title">Cipta Akaun Kamu</div>
+                <div class="feature-desc">Daftar sekarang dan mulai perjalanan kamu di VoltDev</div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+                <div class="feature-title">Dapatkan Achievement</div>
+                <div class="feature-desc">Kumpul berbagai achievement dengan menyelesaikan quest</div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                <div class="feature-title">Menangi Top 1 Leaderboard</div>
+                <div class="feature-desc">Bersaing dengan developer lain dan jadilah yang terbaik</div>
+            </div>
+
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <div class="feature-title">VoltLab</div>
+                <div class="feature-desc">Kongsi projek coding kamu dengan komuniti</div>
+            </div>
+        </div>
+
+        <button class="cta-button" onclick="mulakan()">MULAKAN</button>
+    </div>
+
+    <script>
+        function mulakan() {
+            window.location.href = 'register.html';
+        }
+    </script>
+</body>
+</html>

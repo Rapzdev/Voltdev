@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltDev - Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #ff0000;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ff0000;
+        }
+
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trophy-icon {
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 70px auto 0;
+            padding: 20px;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #1a0000 0%, #330000 100%);
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+
+        .hero-subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            align-items: end;
+        }
+
+        .podium-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .podium-item.second {
+            order: 1;
+        }
+
+        .podium-item.first {
+            order: 2;
+        }
+
+        .podium-item.third {
+            order: 3;
+        }
+
+        .podium-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            border: 4px solid;
+            position: relative;
+        }
+
+        .podium-item.first .podium-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+            border-color: #FFD700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .podium-item.second .podium-avatar {
+            border-color: #C0C0C0;
+        }
+
+        .podium-item.third .podium-avatar {
+            border-color: #CD7F32;
+        }
+
+        .podium-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #000;
+        }
+
+        .podium-item.first .rank-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        .podium-item.second .rank-badge {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+        }
+
+        .podium-item.third .rank-badge {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .podium-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .podium-score {
+            color: #ff0000;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .podium-base {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px 10px;
+            margin-top: 15px;
+        }
+
+        .podium-item.first .podium-base {
+            height: 120px;
+            background: rgba(255, 215, 0, 0.1);
+            border-color: #FFD700;
+        }
+
+        .podium-item.second .podium-base {
+            height: 90px;
+            background: rgba(192, 192, 192, 0.1);
+            border-color: #C0C0C0;
+        }
+
+        .podium-item.third .podium-base {
+            height: 70px;
+            background: rgba(205, 127, 50, 0.1);
+            border-color: #CD7F32;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #ff0000;
+            border-bottom-color: #ff0000;
+        }
+
+        .tab:hover {
+            color: #ff0000;
+        }
+
+        .leaderboard-list {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .leaderboard-item.highlight {
+            background: rgba(255, 0, 0, 0.15);
+            border-left: 4px solid #ff0000;
+        }
+
+        .item-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #888;
+            width: 60px;
+            text-align: center;
+        }
+
+        .item-rank.top {
+            color: #ff0000;
+        }
+
+        .item-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            border: 2px solid #333;
+        }
+
+        .item-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .owner-badge {
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .item-stats {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .item-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff0000;
+            text-align: right;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            stroke: #333;
+            margin-bottom: 20px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid #ff0000;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover svg {
+            stroke: #ff0000;
+        }
+
+        .nav-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: #ffffff;
+            transition: stroke 0.2s ease;
+        }
+
+        @media (max-width: 768px) {
+            .podium {
+                gap: 10px;
+            }
+
+            .podium-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .podium-item.first .podium-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='feed.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <div class="header-title">
+            <span class="trophy-icon">🏆</span>
+            Leaderboard
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <div class="hero-title">Top Players</div>
+            <div class="hero-subtitle">Siapa yang paling hebat di VoltDev?</div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div id="podium-container" class="podium">
+            <div class="loading">Loading top players...</div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="changeCategory('followers')">👥 Followers</button>
+            <button class="tab" onclick="changeCategory('likes')">❤️ Likes</button>
+            <button class="tab" onclick="changeCategory('posts')">📝 Posts</button>
+            <button class="tab" onclick="changeCategory('achievements')">🏆 Achievements</button>
+            <button class="tab" onclick="changeCategory('voltlab')">🔬 VoltLab</button>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div id="leaderboard-container" class="leaderboard-list">
+            <div class="loading">Loading leaderboard...</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="window.location.href='feed.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='search.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='post.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='achievement.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='voltlab.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M9 2v6l3 2V2h2v8l3-2V2h2v8.5a1 1 0 0 1-.4.8l-6 4.5a1 1 0 0 1-1.2 0l-6-4.5A1 1 0 0 1 5 10.5V2h2v8l3 2V2h2z"></path>
+                <path d="M5 22h14"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='profile.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSPMesh8APXCNQ0cUxnyhaVVqjD8Iz-0U",
+            authDomain: "voltdev-479bc.firebaseapp.com",
+            projectId: "voltdev-479bc",
+            storageBucket: "voltdev-479bc.firebasestorage.app",
+            messagingSenderId: "513128200236",
+            appId: "1:513128200236:web:75990bc6886376b2183989",
+            measurementId: "G-JH4CD7PGHP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allUsers = [];
+        let currentCategory = 'followers';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'register.html';
+                return;
+            }
+            
+            currentUser = user;
+            await loadLeaderboard();
+        });
+
+        async function loadLeaderboard() {
+            try {
+                // Get all users
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                allUsers = [];
+
+                for (const userDoc of usersSnapshot.docs) {
+                    const userData = userDoc.data();
+                    const userId = userDoc.id;
+
+                    // Get followers count
+                    const followersDoc = await getDoc(doc(db, 'followers', userId));
+                    const followersData = followersDoc.exists() ? followersDoc.data() : { followers: [], following: [] };
+                    const followersCount = followersData.followers?.length || 0;
+
+                    // Get posts count and total likes
+                    const postsQuery = query(collection(db, 'posts'), where('userId', '==', userId));
+                    const postsSnapshot = await getDocs(postsQuery);
+                    const postsCount = postsSnapshot.size;
+                    
+                    let totalLikes = 0;
+                    postsSnapshot.forEach(doc => {
+                        const post = doc.data();
+                        totalLikes += post.likes || 0;
+                    });
+
+                    // Get VoltLab projects count
+                    const voltlabQuery = query(collection(db, 'voltlab'), where('userId', '==', userId));
+                    const voltlabSnapshot = await getDocs(voltlabQuery);
+                    const voltlabCount = voltlabSnapshot.size;
+
+                    // Get achievements count
+                    const achievementsCount = userData.achievements?.length || 0;
+
+                    allUsers.push({
+                        id: userId,
+                        username: userData.username,
+                        profileImage: userData.profileImage,
+                        isOwner: userData.isOwner || false,
+                        followers: followersCount,
+                        likes: totalLikes,
+                        posts: postsCount,
+                        achievements: achievementsCount,
+                        voltlab: voltlabCount
+                    });
+                }
+
+                renderLeaderboard();
+
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                document.getElementById('leaderboard-container').innerHTML = 
+                    '<div class="loading">Failed to load leaderboard</div>';
+            }
+        }
+
+        function renderLeaderboard() {
+            // Sort users based on current category
+            const sortedUsers = [...allUsers].sort((a, b) => {
+                return b[currentCategory] - a[currentCategory];
+            });
+
+            // Render podium (top 3)
+            renderPodium(sortedUsers.slice(0, 3));
+
+            // Render full list (starting from rank 4)
+            renderList(sortedUsers);
+        }
+
+        function renderPodium(topThree) {
+            const container = document.getElementById('podium-container');
+            
+            if (topThree.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            let html = '';
+            const positions = [
+                { index: 1, class: 'second', emoji: '🥈' },
+                { index: 0, class: 'first', emoji: '🥇' },
+                { index: 2, class: 'third', emoji: '🥉' }
+            ];
+
+            positions.forEach(pos => {
+                const user = topThree[pos.index];
+                if (user) {
+                    const avatarContent = user.profileImage 
+                        ? `<img src="${user.profileImage}" alt="${user.username}">`
+                        : user.username.charAt(0).toUpperCase();
+
+                    html += `
+                        <div class="podium-item ${pos.class}" onclick="window.location.href='profile.html?uid=${user.id}'">
+                            <div class="podium-avatar">
+                                ${avatarContent}
+                                <div class="rank-badge">${pos.emoji}</div>
+                            </div>
+                            <div class="podium-name">${user.username}${user.isOwner ? ' 👑' : ''}</div>
+                            <div class="podium-score">${formatScore(user[currentCategory])}</div>
+                            <div class="podium-base"></div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderList(sortedUsers) {
+            const container = document.getElementById('leaderboard-container');
+            
+            if (sortedUsers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                        </svg>
+                        <p>No data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            sortedUsers.forEach((user, index) => {
+                const rank = index + 1;
+                const isCurrentUser = user.id === currentUser.uid;
+                const avatarContent = user.profileImage 
+                    ? `<img src="${user.profileImage}" alt="${user.username}">`
+                    : user.username.charAt(0).toUpperCase();
+
+                const categoryLabel = {
+                    'followers': 'followers',
+                    'likes': 'total likes',
+                    'posts': 'posts',
+                    'achievements': 'achievements',
+                    'voltlab': 'projects'
+                };
+
+                html += `
+                    <div class="leaderboard-item ${isCurrentUser ? 'highlight' : ''}" 
+                         onclick="window.location.href='profile.html?uid=${user.id}'">
+                        <div class="item-rank ${rank <= 10 ? 'top' : ''}">#${rank}</div>
+                        <div class="item-avatar">${avatarContent}</div>
+                        <div class="item-info">
+                            <div class="item-name">
+                                ${user.username}
+                                ${user.isOwner ? '<span class="owner-badge">OWNER</span>' : ''}
+                                ${isCurrentUser ? '<span class="owner-badge" style="background: linear-gradient(45deg, #0066ff, #00ccff);">YOU</span>' : ''}
+                            </div>
+                            <div class="item-stats">${user[currentCategory]} ${categoryLabel[currentCategory]}</div>
+                        </div>
+                        <div class="item-score">${formatScore(user[currentCategory])}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function formatScore(score) {
+            if (score >= 1000) {
+                return (score / 1000).toFixed(1) + 'k';
+            }
+            return score;
+        }
+
+        window.changeCategory = function(category) {
+            currentCategory = category;
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderLeaderboard();
+        };
+    </script>
+</body>
+</html>

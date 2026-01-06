@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltDev - Feed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #ff0000;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .feed-container {
+            max-width: 600px;
+            margin: 80px auto 0;
+            padding: 20px;
+        }
+
+        .post-card {
+            background: rgba(26, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            border-color: #ff0000;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .owner-badge {
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .post-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .post-caption {
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .post-actions {
+            display: flex;
+            padding: 15px;
+            gap: 25px;
+            border-top: 1px solid #333;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            color: #ff0000;
+        }
+
+        .action-btn.liked {
+            color: #ff0000;
+        }
+
+        .action-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .comments-section {
+            padding: 0 15px 15px;
+            border-top: 1px solid #333;
+            display: none;
+        }
+
+        .comments-section.show {
+            display: block;
+        }
+
+        .comment {
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .comment-username {
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .comment-text {
+            color: #ccc;
+            margin-left: 10px;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .comment-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+        }
+
+        .comment-input input:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        .comment-input button {
+            background: #ff0000;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid #ff0000;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover svg {
+            stroke: #ff0000;
+        }
+
+        .nav-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: #ffffff;
+            transition: stroke 0.2s ease;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .feed-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">VOLTDEV</div>
+        <div class="header-icons">
+            <button class="icon-btn" onclick="window.location.href='ls.html'" title="Leaderboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="feed-container" id="feed-container">
+        <div class="loading">Memuatkan feed...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="location.reload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='search.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='post.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='achievement.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#ff0000"/>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='voltlab.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M9 2v6l3 2V2h2v8l3-2V2h2v8.5a1 1 0 0 1-.4.8l-6 4.5a1 1 0 0 1-1.2 0l-6-4.5A1 1 0 0 1 5 10.5V2h2v8l3 2V2h2z"></path>
+                <path d="M5 22h14"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" id="profile-nav-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSPMesh8APXCNQ0cUxnyhaVVqjD8Iz-0U",
+            authDomain: "voltdev-479bc.firebaseapp.com",
+            projectId: "voltdev-479bc",
+            storageBucket: "voltdev-479bc.firebasestorage.app",
+            messagingSenderId: "513128200236",
+            appId: "1:513128200236:web:75990bc6886376b2183989",
+            measurementId: "G-JH4CD7PGHP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'register.html';
+                return;
+            }
+            
+            currentUser = user;
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.data();
+
+            if(userData.isBanned) {
+                await auth.signOut();
+                alert('Akaun anda telah dibanned');
+                window.location.href = 'register.html';
+                return;
+            }
+
+            document.getElementById('profile-nav-btn').onclick = function() {
+                window.location.href = `profile.html?uid=${user.uid}`;
+            };
+
+            loadFeed();
+        });
+
+        async function loadFeed() {
+            const container = document.getElementById('feed-container');
+            
+            try {
+                const postsQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(50));
+                const postsSnapshot = await getDocs(postsQuery);
+
+                if (postsSnapshot.empty) {
+                    container.innerHTML = '<div class="no-posts">Tiada postingan lagi. Jadilah yang pertama!</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                for (const postDoc of postsSnapshot.docs) {
+                    const post = postDoc.data();
+                    const postId = postDoc.id;
+
+                    const userDoc = await getDoc(doc(db, 'users', post.userId));
+                    const userData = userDoc.data();
+
+                    const postCard = createPostCard(post, userData, postId);
+                    container.appendChild(postCard);
+                }
+
+            } catch (error) {
+                console.error('Error loading feed:', error);
+                container.innerHTML = '<div class="no-posts">Gagal memuatkan feed</div>';
+            }
+        }
+
+        function createPostCard(post, userData, postId) {
+            const card = document.createElement('div');
+            card.className = 'post-card';
+
+            const timeDiff = new Date() - new Date(post.createdAt);
+            const minutes = Math.floor(timeDiff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            let timeStr = '';
+            if (days > 0) timeStr = `${days}h lalu`;
+            else if (hours > 0) timeStr = `${hours}j lalu`;
+            else timeStr = `${minutes}m lalu`;
+
+            const isLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+
+            card.innerHTML = `
+                <div class="post-header" onclick="goToProfile('${post.userId}')">
+                    <div class="profile-pic">${userData.username.charAt(0).toUpperCase()}</div>
+                    <div class="post-user-info">
+                        <div>
+                            <span class="username">${userData.username}</span>
+                            ${userData.isOwner ? '<span class="owner-badge">OWNER</span>' : ''}
+                        </div>
+                        <div class="post-time">${timeStr}</div>
+                    </div>
+                </div>
+                ${post.imageData ? `<img src="${post.imageData}" class="post-image" alt="Post">` : ''}
+                <div class="post-caption">${post.caption || ''}</div>
+                <div class="post-actions">
+                    <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${postId}', this)">
+                        <svg viewBox="0 0 24 24" fill="${isLiked ? '#ff0000' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        <span>${post.likes || 0}</span>
+                    </button>
+                    <button class="action-btn" onclick="toggleComments('${postId}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>${post.comments ? post.comments.length : 0}</span>
+                    </button>
+                </div>
+                <div class="comments-section" id="comments-${postId}">
+                    <div id="comments-list-${postId}">
+                        ${post.comments ? post.comments.map(c => `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-username">${c.username}${c.isOwner ? ' <span class="owner-badge">OWNER</span>' : ''}</span>
+                                </div>
+                                <div class="comment-text">${c.text}</div>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                    <div class="comment-input">
+                        <input type="text" placeholder="Tulis komen..." id="comment-input-${postId}">
+                        <button onclick="addComment('${postId}')">Hantar</button>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        window.goToProfile = function(userId) {
+            window.location.href = `profile.html?uid=${userId}`;
+        };
+
+        window.toggleLike = async function(postId, btn) {
+            try {
+                const postRef = doc(db, 'posts', postId);
+                const postDoc = await getDoc(postRef);
+                const post = postDoc.data();
+
+                let likes = post.likes || 0;
+                let likedBy = post.likedBy || [];
+
+                if (likedBy.includes(currentUser.uid)) {
+                    likes--;
+                    likedBy = likedBy.filter(id => id !== currentUser.uid);
+                    btn.classList.remove('liked');
+                    btn.querySelector('svg').setAttribute('fill', 'none');
+                } else {
+                    likes++;
+                    likedBy.push(currentUser.uid);
+                    btn.classList.add('liked');
+                    btn.querySelector('svg').setAttribute('fill', '#ff0000');
+                }
+
+                await updateDoc(postRef, { likes, likedBy });
+                btn.querySelector('span').textContent = likes;
+
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        };
+
+        window.toggleComments = function(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.classList.toggle('show');
+        };
+
+        window.addComment = async function(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userDoc.data();
+
+                const postRef = doc(db, 'posts', postId);
+                const postDoc = await getDoc(postRef);
+                const post = postDoc.data();
+
+                const comments = post.comments || [];
+                comments.push({
+                    username: userData.username,
+                    text: text,
+                    isOwner: userData.isOwner || false,
+                    userId: currentUser.uid,
+                    createdAt: new Date().toISOString()
+                });
+
+                await updateDoc(postRef, { comments });
+
+                input.value = '';
+                loadFeed();
+
+            } catch (error) {
+                console.error('Error adding comment:', error);
+            }
+        };
+    </script>
+</body>
+</html>

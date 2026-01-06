@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltDev - Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #ff0000;
+            padding: 15px 20px;
+            z-index: 100;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ff0000;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff0000;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .search-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #888;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.95);
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            border-bottom: 1px solid #333;
+            z-index: 99;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #ff0000;
+            border-bottom-color: #ff0000;
+        }
+
+        .results-container {
+            max-width: 600px;
+            margin: 140px auto 0;
+            padding: 20px;
+        }
+
+        .result-item {
+            background: rgba(26, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            border-color: #ff0000;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-result {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-username {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-stats {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .owner-badge {
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .post-result {
+            cursor: pointer;
+        }
+
+        .post-result-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .post-result-caption {
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .post-result-info {
+            display: flex;
+            gap: 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .post-result-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-result-info svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .no-results svg {
+            width: 80px;
+            height: 80px;
+            stroke: #333;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid #ff0000;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover svg {
+            stroke: #ff0000;
+        }
+
+        .nav-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: #ffffff;
+            transition: stroke 0.2s ease;
+        }
+
+        @media (max-width: 768px) {
+            .results-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="search-container">
+            <button class="back-btn" onclick="window.location.href='feed.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="search-input-wrapper">
+                <input type="text" class="search-input" placeholder="Cari username atau caption..." id="search-input">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('users')">Pengguna</div>
+        <div class="tab" onclick="switchTab('posts')">Postingan</div>
+    </div>
+
+    <div class="results-container" id="results-container">
+        <div class="no-results">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <div>Mula cari pengguna atau postingan</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="window.location.href='feed.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="location.reload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='post.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='achievement.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#ff0000"/>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='voltlab.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M9 2v6l3 2V2h2v8l3-2V2h2v8.5a1 1 0 0 1-.4.8l-6 4.5a1 1 0 0 1-1.2 0l-6-4.5A1 1 0 0 1 5 10.5V2h2v8l3 2V2h2z"></path>
+                <path d="M5 22h14"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" id="profile-nav-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSPMesh8APXCNQ0cUxnyhaVVqjD8Iz-0U",
+            authDomain: "voltdev-479bc.firebaseapp.com",
+            projectId: "voltdev-479bc",
+            storageBucket: "voltdev-479bc.firebasestorage.app",
+            messagingSenderId: "513128200236",
+            appId: "1:513128200236:web:75990bc6886376b2183989",
+            measurementId: "G-JH4CD7PGHP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allUsers = [];
+        let allPosts = [];
+        let currentTab = 'users';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'register.html';
+                return;
+            }
+            
+            currentUser = user;
+
+            document.getElementById('profile-nav-btn').onclick = function() {
+                window.location.href = `profile.html?uid=${user.uid}`;
+            };
+
+            await loadData();
+        });
+
+        async function loadData() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                allUsers = usersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                const postsSnapshot = await getDocs(collection(db, 'posts'));
+                allPosts = [];
+                
+                for (const postDoc of postsSnapshot.docs) {
+                    const post = postDoc.data();
+                    const userDoc = await getDoc(doc(db, 'users', post.userId));
+                    allPosts.push({
+                        id: postDoc.id,
+                        ...post,
+                        username: userDoc.data().username
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        const searchInput = document.getElementById('search-input');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 300);
+        });
+
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'users') {
+                tabs[0].classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+            }
+
+            performSearch(searchInput.value);
+        };
+
+        function performSearch(query) {
+            const container = document.getElementById('results-container');
+            
+            if (!query.trim()) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <div>Mula cari ${currentTab === 'users' ? 'pengguna' : 'postingan'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase();
+
+            if (currentTab === 'users') {
+                const filtered = allUsers.filter(user => 
+                    user.username.toLowerCase().includes(lowerQuery)
+                );
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <div>Tiada pengguna dijumpai</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = filtered.map(user => `
+                    <div class="result-item user-result" onclick="goToProfile('${user.id}')">
+                        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <div class="user-username">
+                                ${user.username}
+                                ${user.isOwner ? '<span class="owner-badge">OWNER</span>' : ''}
+                            </div>
+                            <div class="user-stats">
+                                ${user.followers || 0} pengikut · ${user.posts || 0} postingan
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } else {
+                const filtered = allPosts.filter(post => 
+                    (post.caption && post.caption.toLowerCase().includes(lowerQuery)) ||
+                    post.username.toLowerCase().includes(lowerQuery)
+                );
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <div>Tiada postingan dijumpai</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = filtered.map(post => `
+                    <div class="result-item post-result" onclick="goToProfile('${post.userId}')">
+                        ${post.imageData ? `<img src="${post.imageData}" class="post-result-image" alt="Post">` : ''}
+                        <div class="post-result-caption">${post.caption || 'Tiada caption'}</div>
+                        <div class="post-result-info">
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                ${post.likes || 0}
+                            </span>
+                            <span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                ${post.comments ? post.comments.length : 0}
+                            </span>
+                            <span>oleh ${post.username}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        window.goToProfile = function(userId) {
+            window.location.href = `profile.html?uid=${userId}`;
+        };
+    </script>
+</body>
+</html>
