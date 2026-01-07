@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltDev - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #ff0000;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #ff0000;
+        }
+
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-badge {
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 70px auto 0;
+            padding: 20px;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #330000 0%, #1a0000 100%);
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .warning-title {
+            font-size: 1.5rem;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #ff0000;
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff0000;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #ff0000;
+            border-bottom-color: #ff0000;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .users-list {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: rgba(255, 0, 0, 0.05);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-stats {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .user-status {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .status-online {
+            background: rgba(0, 255, 0, 0.2);
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+
+        .status-offline {
+            background: rgba(128, 128, 128, 0.2);
+            color: #888;
+            border: 1px solid #666;
+        }
+
+        .status-banned {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ban {
+            background: #ff0000;
+            color: white;
+        }
+
+        .btn-unban {
+            background: #00ff00;
+            color: black;
+        }
+
+        .btn-custom {
+            background: #ff6b00;
+            color: white;
+        }
+
+        .btn-view {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .event-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .events-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            border-color: #ff0000;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+
+        .event-description {
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .event-reward {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .event-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 2px solid #ff0000;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover svg {
+            stroke: #ff0000;
+        }
+
+        .nav-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: #ffffff;
+            transition: stroke 0.2s ease;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='feed.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <div class="header-title">
+            👑 Admin Panel
+            <span class="admin-badge">OWNER ACCESS</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="warning-banner">
+            <div class="warning-title">⚠️ Admin Access Only</div>
+            <p>Anda mempunyai kawalan penuh terhadap VoltDev. Gunakan dengan bijak!</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="total-users">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🟢</div>
+                <div class="stat-number" id="online-users">0</div>
+                <div class="stat-label">Online Now</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-number" id="total-posts">0</div>
+                <div class="stat-label">Total Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔬</div>
+                <div class="stat-number" id="total-projects">0</div>
+                <div class="stat-label">VoltLab Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚫</div>
+                <div class="stat-number" id="banned-users">0</div>
+                <div class="stat-label">Banned Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-number" id="total-events">0</div>
+                <div class="stat-label">Active Events</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">👥 Users</button>
+            <button class="tab" onclick="switchTab('events')">🎉 Events</button>
+            <button class="tab" onclick="switchTab('analytics')">📊 Analytics</button>
+            <button class="tab" onclick="switchTab('content')">🗑️ Content</button>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="section active">
+            <div class="users-list" id="users-list">
+                <div class="loading">Loading users...</div>
+            </div>
+        </div>
+
+        <!-- Events Section -->
+        <div id="events-section" class="section">
+            <div class="event-form">
+                <h2 style="color: #ff0000; margin-bottom: 20px;">Create New Event</h2>
+                <form id="event-form" onsubmit="createEvent(event)">
+                    <div class="form-group">
+                        <label class="form-label">Event Title *</label>
+                        <input type="text" class="form-input" id="event-title" required placeholder="e.g. Weekly Quiz Challenge">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-textarea" id="event-description" required placeholder="Describe the event..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Question/Task *</label>
+                        <input type="text" class="form-input" id="event-question" required placeholder="What is the challenge?">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Correct Answer *</label>
+                        <input type="text" class="form-input" id="event-answer" required placeholder="Expected answer">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Reward *</label>
+                        <input type="text" class="form-input" id="event-reward" required placeholder="e.g. Custom Title: Quiz Master">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Duration (Days) *</label>
+                        <input type="number" class="form-input" id="event-duration" required value="7" min="1">
+                    </div>
+
+                    <button type="submit" class="submit-btn">Create Event</button>
+                </form>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h2 style="color: #ff0000; margin-bottom: 20px;">Active Events</h2>
+                <div class="events-list" id="events-list">
+                    <div class="loading">Loading events...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics-section" class="section">
+            <div class="analytics-grid">
+                <div class="chart-card">
+                    <div class="chart-title">User Growth</div>
+                    <div class="chart-placeholder">
+                        <div id="user-growth-data"></div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Daily Active Users</div>
+                    <div class="chart-placeholder">
+                        <div id="daily-active-data"></div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Post Engagement</div>
+                    <div class="chart-placeholder">
+                        <div id="engagement-data"></div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Top Contributors</div>
+                    <div id="top-contributors"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Management Section -->
+        <div id="content-section" class="section">
+            <h2 style="color: #ff0000; margin-bottom: 20px;">Content Management</h2>
+            <div class="users-list" id="content-list">
+                <div class="loading">Loading content...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Title Modal -->
+    <div class="modal" id="custom-title-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Set Custom Title</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="custom-title-form" onsubmit="saveCustomTitle(event)">
+                <div class="form-group">
+                    <label class="form-label">User: <span id="modal-username"></span></label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Custom Title</label>
+                    <input type="text" class="form-input" id="custom-title-input" placeholder="e.g. Elite Coder">
+                </div>
+                <button type="submit" class="submit-btn">Save Title</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="window.location.href='feed.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='search.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='post.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='achievement.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='voltlab.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M9 2v6l3 2V2h2v8l3-2V2h2v8.5a1 1 0 0 1-.4.8l-6 4.5a1 1 0 0 1-1.2 0l-6-4.5A1 1 0 0 1 5 10.5V2h2v8l3 2V2h2z"></path>
+                <path d="M5 22h14"></path>
+            </svg>
+        </button>
+
+        <button class="nav-btn" onclick="window.location.href='profile.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, Timestamp, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSPMesh8APXCNQ0cUxnyhaVVqjD8Iz-0U",
+            authDomain: "voltdev-479bc.firebaseapp.com",
+            projectId: "voltdev-479bc",
+            storageBucket: "voltdev-479bc.firebasestorage.app",
+            messagingSenderId: "513128200236",
+            appId: "1:513128200236:web:75990bc6886376b2183989",
+            measurementId: "G-JH4CD7PGHP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allUsers = [];
+        let selectedUserId = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'register.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Check if user is owner
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.data();
+            
+            if (!userData.isOwner) {
+                alert('Access Denied! Owner access only.');
+                window.location.href = 'feed.html';
+                return;
+            }
+
+            await loadAdminData();
+        });
+
+        async function loadAdminData() {
+            await Promise.all([
+                loadStats(),
+                loadUsers(),
+                loadEvents(),
+                loadAnalytics()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const postsSnapshot = await getDocs(collection(db, 'posts'));
+                const voltlabSnapshot = await getDocs(collection(db, 'voltlab'));
+                const eventsSnapshot = await getDocs(collection(db, 'events'));
+
+                let onlineCount = 0;
+                let bannedCount = 0;
+
+                usersSnapshot.forEach(doc => {
+                    const user = doc.data();
+                    if (user.lastActive) {
+                        const lastActive = new Date(user.lastActive.seconds * 1000);
+                        const now = new Date();
+                        if (now - lastActive < 5 * 60 * 1000) onlineCount++;
+                    }
+                    if (user.isBanned) bannedCount++;
+                });
+
+                document.getElementById('total-users').textContent = usersSnapshot.size;
+                document.getElementById('online-users').textContent = onlineCount;
+                document.getElementById('total-posts').textContent = postsSnapshot.size;
+                document.getElementById('total-projects').textContent = voltlabSnapshot.size;
+                document.getElementById('banned-users').textContent = bannedCount;
+                document.getElementById('total-events').textContent = eventsSnapshot.size;
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                allUsers = [];
+
+                for (const userDoc of usersSnapshot.docs) {
+                    const userData = userDoc.data();
+                    const userId = userDoc.id();
+
+                    // Get posts count
+                    const postsQuery = query(collection(db, 'posts'), where('userId', '==', userId));
+                    const postsSnapshot = await getDocs(postsQuery);
+
+                    // Get followers count
+                    const followersDoc = await getDoc(doc(db, 'followers', userId));
+                    const followersData = followersDoc.exists() ? followersDoc.data() : {};
+
+                    const isOnline = userData.lastActive ? 
+                        (new Date() - new Date(userData.lastActive.seconds * 1000)) < 5 * 60 * 1000 : false;
+
+                    allUsers.push({
+                        id: userId,
+                        ...userData,
+                        postsCount: postsSnapshot.size,
+                        followersCount: followersData.followers?.length || 0,
+                        isOnline
+                    });
+                }
+
+                renderUsers();
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsers() {
+            const container = document.getElementById('users-list');
+            
+            if (allUsers.length === 0) {
+                container.innerHTML = '<div class="loading">No users found</div>';
+                return;
+            }
+
+            let html = '';
+            allUsers.forEach(user => {
+                const statusClass = user.isBanned ? 'status-banned' : 
+                                  user.isOnline ? 'status-online' : 'status-offline';
+                const statusText = user.isBanned ? 'BANNED' : 
+                                 user.isOnline ? 'ONLINE' : 'OFFLINE';
+
+                html += `
+                    <div class="user-item">
+                        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <div class="user-name">
+                                ${user.username}
+                                ${user.isOwner ? ' 👑' : ''}
+                                ${user.customTitle ? `<span class="owner-badge">${user.customTitle}</span>` : ''}
+                            </div>
+                            <div class="user-stats">
+                                ${user.postsCount} posts • ${user.followersCount} followers • 
+                                ${user.achievements?.length || 0} achievements
+                            </div>
+                        </div>
+                        <span class="user-status ${statusClass}">${statusText}</span>
+                        <div class="action-buttons">
+                            ${!user.isOwner ? `
+                                <button class="btn ${user.isBanned ? 'btn-unban' : 'btn-ban'}" 
+                                        onclick="toggleBan('${user.id}', ${user.isBanned})">
+                                    ${user.isBanned ? 'Unban' : 'Ban'}
+                                </button>
+                                <button class="btn btn-custom" onclick="openCustomTitleModal('${user.id}', '${user.username}')">
+                                    Custom Title
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-view" onclick="window.location.href='profile.html?uid=${user.id}'">
+                                View Profile
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.toggleBan = async function(userId, isBanned) {
+            const action = isBanned ? 'unban' : 'ban';
+            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+            try {
+                await updateDoc(doc(db, 'users', userId), {
+                    isBanned: !isBanned
+                });
+
+                alert(`User ${action}ned successfully!`);
+                await loadUsers();
+                await loadStats();
+
+            } catch (error) {
+                console.error('Error toggling ban:', error);
+                alert('Failed to update user status');
+            }
+        };
+
+        window.openCustomTitleModal = function(userId, username) {
+            selectedUserId = userId;
+            document.getElementById('modal-username').textContent = username;
+            document.getElementById('custom-title-modal').classList.add('active');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('custom-title-modal').classList.remove('active');
+            document.getElementById('custom-title-input').value = '';
+        };
+
+        window.saveCustomTitle = async function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('custom-title-input').value.trim();
+            if (!title) return;
+
+            try {
+                await updateDoc(doc(db, 'users', selectedUserId), {
+                    customTitle: title
+                });
+
+                alert('Custom title set successfully!');
+                closeModal();
+                await loadUsers();
+
+            } catch (error) {
+                console.error('Error setting custom title:', error);
+                alert('Failed to set custom title');
+            }
+        };
+
+        async function loadEvents() {
+            try {
+                const eventsSnapshot = await getDocs(collection(db, 'events'));
+                const container = document.getElementById('events-list');
+
+                if (eventsSnapshot.empty) {
+                    container.innerHTML = '<div class="loading">No events yet</div>';
+                    return;
+                }
+
+                let html = '';
+                eventsSnapshot.forEach(doc => {
+                    const event = doc.data();
+                    const createdDate = new Date(event.createdAt.seconds * 1000).toLocaleDateString('ms-MY');
+                    const endDate = new Date(event.endDate.seconds * 1000).toLocaleDateString('ms-MY');
+                    const isActive = new Date() < new Date(event.endDate.seconds * 1000);
+
+                    html += `
+                        <div class="event-card">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-description">${event.description}</div>
+                            <div style="margin: 15px 0;">
+                                <strong>Question:</strong> ${event.question}
+                            </div>
+                            <div class="event-reward">
+                                🎁 Reward: ${event.reward}
+                            </div>
+                            <div class="event-meta">
+                                <span>Created: ${createdDate}</span>
+                                <span>Ends: ${endDate}</span>
+                                <span style="color: ${isActive ? '#0f0' : '#f00'}">
+                                    ${isActive ? 'ACTIVE' : 'EXPIRED'}
+                                </span>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <button class="btn btn-ban" onclick="deleteEvent('${doc.id}')">Delete Event</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        window.createEvent = async function(event) {
+            event.preventDefault();
+
+            try {
+                const title = document.getElementById('event-title').value;
+                const description = document.getElementById('event-description').value;
+                const question = document.getElementById('event-question').value;
+                const answer = document.getElementById('event-answer').value;
+                const reward = document.getElementById('event-reward').value;
+                const duration = parseInt(document.getElementById('event-duration').value);
+
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + duration);
+
+                await addDoc(collection(db, 'events'), {
+                    title,
+                    description,
+                    question,
+                    answer,
+                    reward,
+                    createdAt: Timestamp.now(),
+                    endDate: Timestamp.fromDate(endDate),
+                    participants: []
+                });
+
+                alert('Event created successfully! 🎉');
+                document.getElementById('event-form').reset();
+                await loadEvents();
+                await loadStats();
+
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Failed to create event');
+            }
+        };
+
+        window.deleteEvent = async function(eventId) {
+            if (!confirm('Are you sure you want to delete this event?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'events', eventId));
+                alert('Event deleted successfully!');
+                await loadEvents();
+                await loadStats();
+
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                alert('Failed to delete event');
+            }
+        };
+
+        async function loadAnalytics() {
+            try {
+                // User Growth
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const userGrowth = {};
+                
+                usersSnapshot.forEach(doc => {
+                    const user = doc.data();
+                    if (user.createdAt) {
+                        const date = new Date(user.createdAt.seconds * 1000).toLocaleDateString();
+                        userGrowth[date] = (userGrowth[date] || 0) + 1;
+                    }
+                });
+
+                document.getElementById('user-growth-data').innerHTML = `
+                    Total registrations: ${usersSnapshot.size}<br>
+                    Recent: ${Object.keys(userGrowth).length} different days
+                `;
+
+                // Daily Active Users
+                let activeToday = 0;
+                const today = new Date().toDateString();
+                
+                usersSnapshot.forEach(doc => {
+                    const user = doc.data();
+                    if (user.lastActive) {
+                        const lastActive = new Date(user.lastActive.seconds * 1000);
+                        if (lastActive.toDateString() === today) {
+                            activeToday++;
+                        }
+                    }
+                });
+
+                document.getElementById('daily-active-data').innerHTML = `
+                    Active today: ${activeToday} users<br>
+                    Percentage: ${((activeToday / usersSnapshot.size) * 100).toFixed(1)}%
+                `;
+
+                // Post Engagement
+                const postsSnapshot = await getDocs(collection(db, 'posts'));
+                let totalLikes = 0;
+                let totalComments = 0;
+
+                postsSnapshot.forEach(doc => {
+                    const post = doc.data();
+                    totalLikes += post.likes || 0;
+                    totalComments += post.comments?.length || 0;
+                });
+
+                document.getElementById('engagement-data').innerHTML = `
+                    Total Posts: ${postsSnapshot.size}<br>
+                    Total Likes: ${totalLikes}<br>
+                    Total Comments: ${totalComments}<br>
+                    Avg Likes/Post: ${(totalLikes / postsSnapshot.size).toFixed(1)}
+                `;
+
+                // Top Contributors
+                const contributors = [];
+                for (const userDoc of usersSnapshot.docs) {
+                    const userId = userDoc.id;
+                    const userData = userDoc.data();
+                    
+                    const postsQuery = query(collection(db, 'posts'), where('userId', '==', userId));
+                    const userPosts = await getDocs(postsQuery);
+                    
+                    const voltlabQuery = query(collection(db, 'voltlab'), where('userId', '==', userId));
+                    const userProjects = await getDocs(voltlabQuery);
+
+                    if (userPosts.size > 0 || userProjects.size > 0) {
+                        contributors.push({
+                            username: userData.username,
+                            posts: userPosts.size,
+                            projects: userProjects.size,
+                            total: userPosts.size + userProjects.size
+                        });
+                    }
+                }
+
+                contributors.sort((a, b) => b.total - a.total);
+                const top5 = contributors.slice(0, 5);
+
+                document.getElementById('top-contributors').innerHTML = top5.map((c, i) => `
+                    <div style="padding: 10px; border-bottom: 1px solid #333;">
+                        <strong>${i + 1}. ${c.username}</strong><br>
+                        <span style="color: #888; font-size: 0.9rem;">
+                            ${c.posts} posts, ${c.projects} projects
+                        </span>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        async function loadContent() {
+            try {
+                const postsSnapshot = await getDocs(collection(db, 'posts'));
+                const container = document.getElementById('content-list');
+
+                if (postsSnapshot.empty) {
+                    container.innerHTML = '<div class="loading">No posts found</div>';
+                    return;
+                }
+
+                let html = '';
+                for (const postDoc of postsSnapshot.docs) {
+                    const post = postDoc.data();
+                    const postId = postDoc.id;
+
+                    const userDoc = await getDoc(doc(db, 'users', post.userId));
+                    const userData = userDoc.exists() ? userDoc.data() : { username: 'Unknown' };
+
+                    html += `
+                        <div class="user-item">
+                            <div class="user-avatar">${userData.username.charAt(0).toUpperCase()}</div>
+                            <div class="user-info">
+                                <div class="user-name">${userData.username}</div>
+                                <div class="user-stats">
+                                    ${post.caption ? post.caption.substring(0, 50) + '...' : 'No caption'}<br>
+                                    ${post.likes || 0} likes • ${post.comments?.length || 0} comments
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-view" onclick="window.location.href='feed.html'">View</button>
+                                <button class="btn btn-ban" onclick="deletePost('${postId}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading content:', error);
+            }
+        }
+
+        window.deletePost = async function(postId) {
+            if (!confirm('Are you sure you want to delete this post?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'posts', postId));
+                alert('Post deleted successfully!');
+                await loadContent();
+                await loadStats();
+
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('Failed to delete post');
+            }
+        };
+
+        window.switchTab = async function(tab) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${tab}-section`).classList.add('active');
+
+            // Load data if needed
+            if (tab === 'content') {
+                await loadContent();
+            }
+        };
+    </script>
+</body>
+</html>
